@@ -3,6 +3,7 @@ var app = angular.module('myLitleScrumBoardApp', ["ngRoute"])
     $pouchDB.setDatabase(myLitleScrumBoardConfig.databaseName);
     if(myLitleScrumBoardConfig.globalSync)
     {
+        console.info("myLitleScrumBoard is working in online mode.");
         $pouchDB.setDatabase(myLitleScrumBoardConfig.globalHost+"/"+myLitleScrumBoardConfig.databaseName);    
     }
     else
