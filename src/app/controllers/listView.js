@@ -1,7 +1,7 @@
 /**
  * Controller: List View.
  **/
-app.controller('listViewCtrl', function($scope, $rootScope, $http, $location,  $pouchDB)
+app.controller('listViewCtrl', function($scope, $rootScope, $http, $location, $pouchDB, notificationService)
 {
     console.log("Constructor: List View Controller.");
     
@@ -60,7 +60,7 @@ app.controller('listViewCtrl', function($scope, $rootScope, $http, $location,  $
     
     $scope.onCreateSuccess = function(response)
     {
-        $scope.notification('Board creation was successful!','success');
+        notificationService.notify('Board creation was successful!','success');
         console.log("[listViewCtrl] create was successful!");
         console.log(response);
     }
@@ -116,7 +116,7 @@ app.controller('listViewCtrl', function($scope, $rootScope, $http, $location,  $
     
     $scope.onDeleteSuccess = function(response)
     {
-        $scope.notification('Board deleted.','success');
+        notificationService.notify('Board deleted.','success');
         console.log("[listViewCtrl] delete was successful!");
         console.log(response);
     }
@@ -125,27 +125,9 @@ app.controller('listViewCtrl', function($scope, $rootScope, $http, $location,  $
     
     $scope.onError = function(error)
     {
-        $scope.notification('Something went wrong!','danger');
+        notificationService.notify('Something went wrong!','danger');
         console.error("[listViewCtrl] something went wrong!");
         console.error(error);
     }
     
-    $scope.notification = function(text, type)
-    {
-        $.notify({
-            message: text 
-        },{
-            type: type,
-            newest_on_top: true,
-            delay: 600,
-            placement: {
-                from: "bottom",
-                align: "center"
-            },
-            animate: {
-                enter: 'animated fadeInDown',
-                exit: 'animated fadeOutUp'
-            }
-        });
-    }
 });

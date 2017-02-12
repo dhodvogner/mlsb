@@ -1,7 +1,7 @@
 /**
  * Controller: Board View.
  **/
-app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams, $pouchDB)
+app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams, $pouchDB, notificationService)
 {
     console.log("Constructor: Board View Controller.");
     console.log("routeParams.boardId : " + $routeParams.boardId);
@@ -21,7 +21,7 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
     .then($scope.OnGetSuccess, $scope.onError);
     
     $scope.OnGetSuccess = function(response) {
-        $scope.notification('Board loaded.', 'success');
+        notificationService.notify('Board loaded.', 'success');
         console.error("[boardViewCtrl] recived the board successfuly!");
         console.log(response);
     }
@@ -74,7 +74,7 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
     
     $scope.onCreateSuccess = function(response)
     {
-        $scope.notification('Task added.', 'info');
+        notificationService.notify('Task added.', 'info');
         console.log("[boardViewCtrl] Adding task was successful!");
         console.log(response);
     }
@@ -150,32 +150,13 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
         
     $scope.onSaveSuccess = function(response)
     {
-        $scope.notification('Board saved.', 'success')
+        notificationService.notifySingle('Board saved.', 'success')
     }
     
     $scope.onError = function(error) {
-        $scope.notification('Something went wrong!','danger');
+        notificationService.notify('Something went wrong!','danger');
         console.error("[listViewCtrl] something went wrong!");
         console.error(error);
-    }
-    
-    $scope.notification = function(text, type)
-    {
-        $.notify({
-            message: text 
-        },{
-            type: type,
-            newest_on_top: true,
-            delay: 600,
-            placement: {
-                from: "bottom",
-                align: "center"
-            },
-            animate: {
-                enter: 'animated fadeInDown',
-                exit: 'animated fadeOutUp'
-            }
-        });
     }
     
 });
