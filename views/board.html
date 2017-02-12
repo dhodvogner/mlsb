@@ -1,0 +1,100 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-6">
+            <h4><a href="#/">Boards:</a> {{board.name}}</h4>
+        </div>
+		<div class="col-xs-3 text-right">
+			<button id="btnAddTask" class="btn btn-default" data-toggle="modal" data-target="#modalAddTask" type="button" aria-label="Add Task">
+				<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+			</button>
+            <button id="btnDeleteTask" class="btn btn-danger" type="button" aria-label="Delete Task" droppable drop="handleTaskDropDelete"
+                    data-toggle="tooltip" data-placement="bottom" title="Drag and drop a task here to delete">
+				<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+			</button>
+            <button id="btnExportBoard" ng-click="exportBoard()" class="btn btn-default" type="button" aria-label="Export Board"
+                    data-toggle="tooltip" data-placement="bottom" title="Export board as JSON file">
+				<span  class="glyphicon glyphicon-export" aria-hidden="true"></span>
+			</button>
+		</div>
+        <div class="col-xs-3">
+            <div class="input-group pt-search-group">
+                <input type="text" class="form-control" ng-model="searchText" placeholder="Search">
+                <div class="input-group-addon">
+                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <table class="table table-condensed"> 
+                <thead> 
+                    <tr>
+                        <th ng-repeat="column in board.columns" class="text-center">{{column.name}} <span class="badge badge-{{column.display}}">{{getTasksInColumn(column.id).length}}</span></th> 
+                    </tr> 
+                </thead> 
+                <tbody>
+					<tr>
+					  <td ng-repeat="column in board.columns" droppable drop="handleTaskDrop"
+						  id="column-{{column.id}}" class="column col-xs-{{columnSize}} column-{{column.display}}">
+						   <div ng-repeat="task in getTasksInColumn(column.id) | filter:{name: searchText} track by $index "  ng-dblclick="handleTaskClick(task.id)" 
+                                id="task-{{task.id}}" class="task alert alert-{{column.display}}" draggable>
+                                <span class="label label-{{column.display}}">{{task.tag}}</span>
+                                {{task.name}}
+                            </div>
+					  </td>
+					</tr>
+                </tbody> 
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Add New Task Modal -->                                                                            
+<div id="modalAddTask" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add Task</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formAddTask">
+                    <div class="row">
+                        <div ng-show="msgErrorAddTask" class="col-xs-12">
+                            <div class="alert alert-danger" role="alert"><strong>Oh snap!</strong> {{msgErrorAddTask}}</div>
+                        </div>
+                        <div class="col-xs-8">
+                            <div class="form-group">
+                                <label for="inputTaskLink">Link:</label>
+                                <input type="text" class="form-control" id="inputTaskLink" placeholder="http://">
+                            </div>
+                        </div>
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label for="inputTaskJiraId">Tag:</label>
+                                <input type="text" class="form-control" id="inputTaskJiraId" placeholder="ASD-123">
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label for="inputTaskName">Task name:</label>
+                                <input type="text" class="form-control" id="inputTaskName" placeholder="Something really imporant.">
+                            </div>
+                        </div>
+                        <div class="col-xs-12"> 
+                            <div class="form-group">
+                                <label for="selectColumn">Select column:</label>
+                                <select class="form-control" id="selectColumn">
+                                    <option ng-repeat="column in board.columns" value="{{column.id}}">{{column.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button ng-click="addNewTask()" type="button" class="btn btn-primary">Add Task</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal --> 
