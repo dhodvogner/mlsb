@@ -1,0 +1,23 @@
+@import 'badges';
+
+.alert-default 
+{
+    color: #000000;
+    background-color: #f6f6f6;
+    border-color: #d7d7d7;/*#bfbfbf;*/
+}
+
+.column
+{
+	border-right: 2px solid #ddd;
+	
+	&:last-child 
+	{
+		 border-right: 0px;
+	}
+}
+
+.mlsb-app-view
+{
+    margin-top : 15px;
+}

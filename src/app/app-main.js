@@ -31,4 +31,5 @@ app.config(['$locationProvider', '$routeProvider', function($locationProvider, $
 function dev_reload()
 {
 	nw.Window.get().reload();
+    console.log("Hello");
 }

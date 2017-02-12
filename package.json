@@ -1,0 +1,28 @@
+{
+  "name": "mlsb",
+  "version": "1.0.0",
+  "description": "My Little Scrum Board",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dhodvogner/mlsb.git"
+  },
+  "author": "Daniel Hodvogner <daniel@hodvogner.hu>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/dhodvogner/mlsb/issues"
+  },
+  "homepage": "https://github.com/dhodvogner/mlsb#readme",
+  "devDependencies": {
+    "browser-sync": "^2.18.7",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.1",
+    "gulp-plumber": "^1.1.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^3.1.0",
+    "gulp-uglify": "^2.0.1",
+    "main-bower-files": "^2.13.1"
+  }
+}
