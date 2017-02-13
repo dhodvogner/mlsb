@@ -26,8 +26,12 @@ You need Npm, Bower and Gulp to build the project. Currently you can only build 
 * Set globalSync to true in app/app-config.js and globalHost to match your CouchDB address
 
 # To do / Future plans
+* Separate boards and tasks into diffrent databases
+* Board edit (Task edit?)
+* Task URL check (Now it's accept everything)
+* Tag based filtering (Multiple tags?)
+* Private boards (Not synced to CouchDB)
 * Create production build in gulp (uglyfiy, minify, concat)
-* Implement tag based search or filtering
 
 # Useful links
 * https://angularjs.org/
