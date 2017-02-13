@@ -6,18 +6,22 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
     console.log("Constructor: Board View Controller.");
     console.log("routeParams.boardId : " + $routeParams.boardId);
     
+    $scope.currentBoardId = $routeParams.boardId;
     $scope.board       = {};
     $scope.columnSize  = 12
     
     $pouchDB.startListening();
     
     $rootScope.$on("$pouchDB:change", function(event, data) {
-        $scope.board = data.doc;
-        $scope.columnSize = parseInt(12/$scope.board.columns.length);
-        $scope.$apply();
+	if($scope.currentBoardId == data.doc._id)
+	{
+            $scope.board = data.doc;
+            $scope.columnSize = parseInt(12/$scope.board.columns.length);
+            $scope.$apply();
+	}
     });
     
-    $pouchDB.get($routeParams.boardId)
+    $pouchDB.get($scope.currentBoardId)
     .then($scope.OnGetSuccess, $scope.onError);
     
     $scope.OnGetSuccess = function(response) {
