@@ -30,7 +30,7 @@ You need Npm, Bower and Gulp to build the project. Currently you can only build 
 * Board edit (Task edit?)
 * Task URL check (Now it's accept everything)
 * Tag based filtering (Multiple tags?)
-* Private boards (Not synced to CouchDB)
+* Private boards (Not synced to CouchDB, or not listed, only visible via link)
 * Create production build in gulp (uglyfiy, minify, concat)
 
 # Useful links
