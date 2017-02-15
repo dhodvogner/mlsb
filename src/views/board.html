@@ -37,10 +37,10 @@
 					<tr>
 					  <td ng-repeat="column in board.columns" droppable drop="handleTaskDrop"
 						  id="column-{{column.id}}" class="column col-xs-{{columnSize}} column-{{column.display}}">
-						   <div ng-repeat="task in getTasksInColumn(column.id) | filter:{name: searchText} track by $index "  ng-dblclick="handleTaskClick(task.id)" 
-                                id="task-{{task.id}}" class="task alert alert-{{column.display}}" draggable>
+						   <div ng-repeat="task in getTasksInColumn(column.id) | filter:{name: searchText} track by $index "  ng-dblclick="handleTaskClick(task._id)" 
+                                id="task-{{task._id}}" class="task alert alert-{{column.display}}" draggable>
                                 <span class="label label-{{column.display}}">{{task.tag}}</span>
-                                {{task.name}}
+                                {{task._id}} {{task.name}}
                             </div>
 					  </td>
 					</tr>

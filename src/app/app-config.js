@@ -1,5 +1,5 @@
 app.constant('myLitleScrumBoardConfig', {
-    databaseName : "mlsb-boards",
+    databaseName : "mlsb-db",
     globalSync   : true,
     globalHost   : "http://127.0.0.1:5984",
 });

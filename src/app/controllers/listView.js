@@ -10,6 +10,7 @@ app.controller('listViewCtrl', function($scope, $rootScope, $http, $location, $p
     $pouchDB.startListening();
     
     $rootScope.$on("$pouchDB:change", function(event, data) {
+        console.log(event, data.doc);
         for(var i = 0; i < $scope.boards.length; i++)
         {
             if($scope.boards[i]._id == data.doc._id)
@@ -19,7 +20,10 @@ app.controller('listViewCtrl', function($scope, $rootScope, $http, $location, $p
                 return;
             }
         }
-        $scope.boards.push(data.doc);
+        if(data.doc.type == "board")
+        {
+            $scope.boards.push(data.doc);
+        }
         $scope.$apply();
         
     });

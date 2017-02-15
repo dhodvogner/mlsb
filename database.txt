@@ -1,0 +1,71 @@
+Layout of mlsb-db
+
+Queries:
+
+http://localhost:5984/mlsb-db/_design/mlsb/_view/taks-by-board?key=%229b3a1e22e7a05361c7e77136bb009b28%22
+
+Design Doc:
+
+{
+  "_id": "_design/mlsb",
+  "_rev": "2-055326590d5f9c12ddea223ea808f6ca",
+  "views": {
+    "taks-by-board": {
+      "map": "function (doc) {\n  if(doc.board_id && doc.type == \"task\") emit(doc.board_id, doc);\n}"
+    }
+  },
+  "language": "javascript"
+}
+
+Test data:
+
+{
+  "_id": "9b3a1e22e7a05361c7e77136bb009b28",
+  "_rev": "1-861147f66e55bf9829207b02786b93a2",
+  "type": "board",
+  "name": "Test board",
+  "lastColumnId": 5,
+  "columns": [
+    {
+      "id": 0,
+      "display": "default",
+      "name": "Grey",
+      "$$hashKey": "object:3"
+    },
+    {
+      "id": 1,
+      "display": "info",
+      "name": "Blue",
+      "$$hashKey": "object:5"
+    },
+    {
+      "id": 2,
+      "display": "warning",
+      "name": "Yellow",
+      "$$hashKey": "object:7"
+    },
+    {
+      "id": 3,
+      "display": "success",
+      "name": "Green",
+      "$$hashKey": "object:9"
+    },
+    {
+      "id": 4,
+      "display": "danger",
+      "name": "Red",
+      "$$hashKey": "object:11"
+    }
+  ]
+}
+
+{
+  "_id": "9b3a1e22e7a05361c7e77136bb00b28c",
+  "_rev": "1-97b6c1207fc14488b706eca477456b2e",
+  "type": "task",
+  "board_id": "9b3a1e22e7a05361c7e77136bb009b28",
+  "column_id": "0",
+  "name": "Test task 1",
+  "link": "http://index.hu/",
+  "tag": "Task"
+}

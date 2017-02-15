@@ -8,22 +8,52 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
     
     $scope.currentBoardId = $routeParams.boardId;
     $scope.board       = {};
+    $scope.tasks       = new Array();
     $scope.columnSize  = 12
     
     $pouchDB.startListening();
     
     $rootScope.$on("$pouchDB:change", function(event, data) {
-	if($scope.currentBoardId == data.doc._id)
-	{
+        if($scope.currentBoardId == data.doc._id)
+        {
             $scope.board = data.doc;
             $scope.columnSize = parseInt(12/$scope.board.columns.length);
             $scope.$apply();
-	}
+	    }
     });
     
     $pouchDB.get($scope.currentBoardId)
     .then($scope.OnGetSuccess, $scope.onError);
     
+    $scope.getTasks = function ()
+    {
+        $pouchDB.query('mlsb/taks-by-board', { key : $scope.currentBoardId })
+        .then(function (res) {
+            console.log("Query success", res);
+            $scope.tasks = new Array();
+            for(var i = 0; i < res.rows.length; i++)
+            {
+                $scope.tasks.push(res.rows[i].value);
+            }
+            console.log($scope.tasks);
+            $scope.$apply();
+        }).catch(function (err) {
+            console.error("Query error", err);
+            if(err.name == "not_found")
+            {
+                console.info("Don't worry we try to add our design doc now.")
+                $pouchDB.addDesignDoc().then(function () {
+                    console.log("design doc added");
+                    $scope.getTasks();
+                }).catch(function (err) {
+                    console.error("Can't add design doc", err);
+                });
+            }
+        });
+    }
+
+    $scope.getTasks();
+
     $scope.OnGetSuccess = function(response) {
         notificationService.notify('Board loaded.', 'success');
         console.error("[boardViewCtrl] recived the board successfuly!");
@@ -55,7 +85,8 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
     $scope.addNewTask = function()
     {
         var task = $pouchDB.createEmptyTask();
-        task.cid    = parseInt($("#selectColumn").val());
+        task.board_id  =  $scope.currentBoardId;
+        task.column_id = parseInt($("#selectColumn").val());
         task.name   = $("#inputTaskName").val();
         task.link   = $("#inputTaskLink").val();
         task.tag    = $("#inputTaskJiraId").val();
@@ -66,10 +97,8 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
             return;
         }
         
-        task.id = $scope.board.lastTaskId;
-        $scope.board.lastTaskId++;
-        $scope.board.tasks.push(task);
-        $pouchDB.save($scope.board).then($scope.onCreateSuccess, $scope.onError);
+        //$scope.tasks.push(task);
+        $pouchDB.save(task).then($scope.onCreateSuccess, $scope.onError);
         
         $scope.msgErrorAddTask = "";
         document.getElementById("formAddTask").reset();
@@ -81,15 +110,16 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
         notificationService.notify('Task added.', 'info');
         console.log("[boardViewCtrl] Adding task was successful!");
         console.log(response);
+        $scope.getTasks();
     }
 
     $scope.getTaskById = function(taskid)
     {
-        for(var i = 0; i < $scope.board.tasks.length; i++)
+        for(var i = 0; i < $scope.tasks.length; i++)
         {
-            if($scope.board.tasks[i].id == taskid)
+            if($scope.tasks[i]._id == taskid)
             {
-                return $scope.board.tasks[i];
+                return $scope.tasks[i];
             }
         }
         return null;
@@ -98,9 +128,9 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
     $scope.getTasksInColumn = function(columnid)
     {
         var res = new Array();
-        for(var i = 0; i < $scope.board.tasks.length; i++)
+        for(var i = 0; i < $scope.tasks.length; i++)
         {
-            if($scope.board.tasks[i].cid == columnid) res.push($scope.board.tasks[i]);
+            if($scope.tasks[i].column_id == columnid) res.push($scope.tasks[i]);
         }
         //console.log("getTasksInColumn " + columnid + " l: " + res.length);
         return res;
@@ -117,33 +147,46 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
     $scope.handleTaskDrop = function(taskid, columnid)
     {
         console.log("[handleTaskDrop] " + taskid + " moved to " + columnid);
-        var tID = parseInt(taskid.replace("task-", ""));
+        var tID = taskid.replace("task-", "");
         var cID = parseInt(columnid.replace("column-", ""));
-        var cData = $scope.board.columns[cID];
 
         var tData = $scope.getTaskById(tID);
         if(tData == null) console.error("No task found! task ID :" + tID);
-        tData.cid = cID;
+        tData.column_id = cID;
 
-        $pouchDB.save($scope.board).then($scope.onSaveSuccess, $scope.onError);
+        $pouchDB.save(tData).then($scope.onDropSuccess, $scope.onError);
     }
     
+    $scope.onDropSuccess = function(response)
+    {
+        notificationService.notifySingle('Board saved.', 'success');
+        console.log("Drop success", response);
+        var task = $scope.getTaskById(response.id);
+        task._rev = response.rev;
+    }
+
     $scope.handleTaskDropDelete = function(taskid)
     {
         console.log("[handleTaskDropDelete] " + taskid);
-        var tID = parseInt(taskid.replace("task-", ""));
-        
-        for(var i = 0; i < $scope.board.tasks.length; i++)
+        var tID = taskid.replace("task-", "");
+        var task_id, task_rev = null;
+        for(var i = 0; i < $scope.tasks.length; i++)
         {
-            if($scope.board.tasks[i].id == tID)
+            if($scope.tasks[i]._id == tID)
             {
-                $scope.board.tasks.splice(i, 1);
+                task_id  = $scope.tasks[i]._id;
+                task_rev = $scope.tasks[i]._rev;
+                $scope.tasks.splice(i, 1);
                 break;
             }
         }
-        $pouchDB.save($scope.board).then($scope.onSaveSuccess, $scope.onError);
+        if(task_id != null && task_rev != null)
+        {
+             $pouchDB.delete(task_id, task_rev).then($scope.onSaveSuccess, $scope.onError);
+            //$pouchDB.save($scope.board).then($scope.onSaveSuccess, $scope.onError);
+        }
     }
-    
+
     $scope.exportBoard = function()
     {
         var uriContent = "data:application/octet-stream," + encodeURIComponent(JSON.stringify($scope.board));
@@ -154,7 +197,8 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
         
     $scope.onSaveSuccess = function(response)
     {
-        notificationService.notifySingle('Board saved.', 'success')
+        notificationService.notifySingle('Board saved.', 'success');
+        console.log("Save success", response)
     }
     
     $scope.onError = function(error) {

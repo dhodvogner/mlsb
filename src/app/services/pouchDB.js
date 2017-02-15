@@ -12,7 +12,7 @@ app.service("$pouchDB", ["$rootScope", "$q", function($rootScope, $q) {
     {
         changeListener = database.changes({live: true, include_docs: true})
         .on("change", function(change) {
-            //console.log("[$pouchDB, changeListener] change", change);
+            //console.log("[$pouchDB, changeListener] change");//, change);
             $rootScope.$broadcast((!change.deleted) ? "$pouchDB:change" : "$pouchDB:delete", change);
         });
     }
@@ -51,6 +51,11 @@ app.service("$pouchDB", ["$rootScope", "$q", function($rootScope, $q) {
         return database.get(documentId);
     }
 
+    this.query = function(viewName, options)
+    {
+        return database.query(viewName, options);
+    }
+
     this.destroy = function()
     {
         database.destroy();
@@ -58,14 +63,27 @@ app.service("$pouchDB", ["$rootScope", "$q", function($rootScope, $q) {
     
     ///////////////////////////////////////////////////
     
+    this.addDesignDoc = function()
+    {
+        var ddoc = {
+            _id: "_design/mlsb",
+            views: {
+                "taks-by-board" : {
+                map: function (doc) {if(doc.board_id && doc.type == "task") emit(doc.board_id, doc);}.toString()
+                }
+            },
+            language: "javascript"
+        };
+        return this.save(ddoc);
+    }
+
     this.createEmptyBoard = function()
     {
         return {
+           type: "board",
            name : "",
-           lastTaskId:    0,
            lastColumnId : 0,
-           columns : new Array(),
-           tasks: new Array()
+           columns : new Array()
         };  
     }
     
@@ -81,8 +99,9 @@ app.service("$pouchDB", ["$rootScope", "$q", function($rootScope, $q) {
     this.createEmptyTask = function()
     {
         return {
-            id:  null, 
-            cid: null, 
+            type: "task",
+            board_id:  null, 
+            column_id: null, 
             name: "", 
             link: "", 
             tag: ""
