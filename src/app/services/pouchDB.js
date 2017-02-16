@@ -82,6 +82,7 @@ app.service("$pouchDB", ["$rootScope", "$q", function($rootScope, $q) {
         return {
            type: "board",
            name : "",
+           privacy: "public",
            lastColumnId : 0,
            columns : new Array()
         };  

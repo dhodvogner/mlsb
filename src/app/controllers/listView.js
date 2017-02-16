@@ -10,22 +10,24 @@ app.controller('listViewCtrl', function($scope, $rootScope, $http, $location, $p
     $pouchDB.startListening();
     
     $rootScope.$on("$pouchDB:change", function(event, data) {
-        console.log(event, data.doc);
-        for(var i = 0; i < $scope.boards.length; i++)
-        {
-            if($scope.boards[i]._id == data.doc._id)
-            {
-                $scope.boards[i] = data.doc;
-                $scope.$apply();
-                return;
-            }
-        }
         if(data.doc.type == "board")
         {
-            $scope.boards.push(data.doc);
+            console.log(event, data.doc);
+            for(var i = 0; i < $scope.boards.length; i++)
+            {
+                if($scope.boards[i]._id == data.doc._id)
+                {
+                    $scope.boards[i] = data.doc;
+                    $scope.$apply();
+                    return;
+                }
+            }
+            if(data.doc.privacy != "private")
+            {
+                $scope.boards.push(data.doc);
+                $scope.$apply();
+            }
         }
-        $scope.$apply();
-        
     });
     
     $rootScope.$on("$pouchDB:delete", function(event, data) {
@@ -55,7 +57,7 @@ app.controller('listViewCtrl', function($scope, $rootScope, $http, $location, $p
         if($("#inputBoardName").val() == "") return;
         if($scope.tmpBoardData.columns.length < 1) return;
         $scope.tmpBoardData.name = $("#inputBoardName").val();
-        $scope.tmpBoardData.storageType = $("#selectBoardStorageType").val();
+        $scope.tmpBoardData.privacy = $("#inputBoardPrivacy").val();
         $pouchDB.save($scope.tmpBoardData).then($scope.onCreateSuccess, $scope.onError);
         $scope.tmpBoardData = $pouchDB.createEmptyBoard();
         document.getElementById("formCreateBoard").reset();
@@ -64,9 +66,10 @@ app.controller('listViewCtrl', function($scope, $rootScope, $http, $location, $p
     
     $scope.onCreateSuccess = function(response)
     {
-        notificationService.notify('Board creation was successful!','success');
+        notificationService.notify('Board creation was successful! <a href="#!/board/'+response.id+'">View</a>','success');
         console.log("[listViewCtrl] create was successful!");
         console.log(response);
+        //TODO: save private board to localStorage and list them to those who have the id saved.
     }
     
    ////////////////////////////////////////////////////////////
@@ -113,11 +116,25 @@ app.controller('listViewCtrl', function($scope, $rootScope, $http, $location, $p
     $scope.confirmDeleteBoard = function()
     {
         if(delete_id == null && delete_rev == null) return;
-        $pouchDB.delete(delete_id, delete_rev).then($scope.onDeleteSuccess, $scope);
+        $pouchDB.delete(delete_id, delete_rev).then($scope.onDeleteSuccess, $scope.onError);
+        $scope.deleteAllTaskFromBoard(delete_id);
         delete_id, delete_rev = null;
         $('#modalDeleteBoardConfirmation').modal('toggle');
     }
     
+    $scope.deleteAllTaskFromBoard = function(boardId)
+    {
+        $pouchDB.query('mlsb/taks-by-board', { key : boardId })
+        .then(function (res) {
+            console.log("DeleteAllTaskFromBoard -> Query success", res);
+            $scope.tasks = new Array();
+            for(var i = 0; i < res.rows.length; i++)
+            {
+                $pouchDB.delete(res.rows[i].value._id, res.rows[i].value._rev)
+            }
+        });
+    }
+
     $scope.onDeleteSuccess = function(response)
     {
         notificationService.notify('Board deleted.','success');
