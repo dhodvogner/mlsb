@@ -40,7 +40,7 @@
 						   <div ng-repeat="task in getTasksInColumn(column.id) | filter:{name: searchText} track by $index "  ng-dblclick="handleTaskClick(task._id)" 
                                 id="task-{{task._id}}" class="task alert alert-{{column.display}}" draggable>
                                 <span class="label label-{{column.display}}">{{task.tag}}</span>
-                                {{task._id}} {{task.name}}
+                                <!--{{task._id}}-->{{task.name}}
                             </div>
 					  </td>
 					</tr>

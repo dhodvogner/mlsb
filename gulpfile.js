@@ -18,6 +18,8 @@ gulp.task("bower-files", function(){
         .pipe(gulp.dest(buildPath + "/libs"));
     gulp.src('./src/fonts/**/*.*') //Bootstrap fonts
         .pipe(gulp.dest(buildPath + '/fonts'));
+    gulp.src('./src/favicon.png') //Favicon :)
+        .pipe(gulp.dest(buildPath + '/'));
 });
 
 // Copy Views and index
@@ -55,6 +57,7 @@ gulp.task('serve', ['sass'], function() {
     gulp.watch('src/app/**/*.js', ['scripts']);
     gulp.watch('src/scss/**/*.scss', ['sass']);
     gulp.watch("src/*.html", ["html"]).on('change', browserSync.reload);
+    gulp.watch("./src/views/**/*.html", ["html"]).on('change', browserSync.reload);
 });
 
 // Default Task
