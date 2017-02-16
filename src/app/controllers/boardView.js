@@ -14,12 +14,20 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
     $pouchDB.startListening();
     
     $rootScope.$on("$pouchDB:change", function(event, data) {
-        if($scope.currentBoardId == data.doc._id)
+        
+        if($scope.currentBoardId == data.doc._id && data.doc.type == "board")
         {
             $scope.board = data.doc;
             $scope.columnSize = parseInt(12/$scope.board.columns.length);
             $scope.$apply();
 	    }
+        if($scope.currentBoardId == data.doc.board_id && data.doc.type == "task")
+        {
+            console.log("$pouchDB:change, Task recieved", data.doc);
+            var res = $scope.setTaskById(data.doc._id, data.doc);
+            if(res == false) $scope.tasks.push(data.doc);
+            $scope.$apply();
+        }
     });
     
     $pouchDB.get($scope.currentBoardId)
@@ -123,6 +131,19 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
             }
         }
         return null;
+    }
+
+    $scope.setTaskById = function(taskid, doc)
+    {
+         for(var i = 0; i < $scope.tasks.length; i++)
+        {
+            if($scope.tasks[i]._id == doc._id)
+            {
+                $scope.tasks[i] = doc;
+                return true;
+            }
+        }
+        return false;
     }
 
     $scope.getTasksInColumn = function(columnid)
