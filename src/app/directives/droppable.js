@@ -1,25 +1,8 @@
-app.directive('draggable', function() {
-    return function(scope, element) {
-        var el = element[0];
-        el.draggable = true;
-		
-        el.addEventListener('dragstart', function(e) {
-			//console.log("dragstart : " + this.id);
-			e.dataTransfer.effectAllowed = 'move';
-			e.dataTransfer.setData('DraggedId', this.id);
-			this.classList.add('drag');
-			return false;
-        }, false);
+angular
+    .module('myLitleScrumBoardApp')
+    .directive('droppable', droppableDirective);
 
-        el.addEventListener('dragend', function(e) {
-			//console.log("dragend : " + this.id);
-			this.classList.remove('drag');
-			return false;
-        }, false);
-    }
-});
-
-app.directive('droppable', function() {
+function droppableDirective() {
     return {
         scope: {drop: '&', bin: '=' /*bi-directional scope*/},
         link: function(scope, element) {
@@ -60,4 +43,4 @@ app.directive('droppable', function() {
 			}, false);
         }
     }
-});
+}

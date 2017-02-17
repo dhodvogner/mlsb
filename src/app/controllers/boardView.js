@@ -1,7 +1,7 @@
 /**
  * Controller: Board View.
  **/
-app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams, $pouchDB, notificationService)
+app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams, pouchDBService, notificationService)
 {
     console.log("Constructor: Board View Controller.");
     console.log("routeParams.boardId : " + $routeParams.boardId);
@@ -11,9 +11,9 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
     $scope.tasks       = new Array();
     $scope.columnSize  = 12
     
-    $pouchDB.startListening();
+    pouchDBService.startListening();
     
-    $rootScope.$on("$pouchDB:change", function(event, data) {
+    $rootScope.$on("pouchDBService:change", function(event, data) {
         
         if($scope.currentBoardId == data.doc._id && data.doc.type == "board")
         {
@@ -23,19 +23,19 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
 	    }
         if($scope.currentBoardId == data.doc.board_id && data.doc.type == "task")
         {
-            console.log("$pouchDB:change, Task recieved", data.doc);
+            console.log("pouchDBService:change, Task recieved", data.doc);
             var res = $scope.setTaskById(data.doc._id, data.doc);
             if(res == false) $scope.tasks.push(data.doc);
             $scope.$apply();
         }
     });
     
-    $pouchDB.get($scope.currentBoardId)
+    pouchDBService.get($scope.currentBoardId)
     .then($scope.OnGetSuccess, $scope.onError);
     
     $scope.getTasks = function ()
     {
-        $pouchDB.query('mlsb/taks-by-board', { key : $scope.currentBoardId })
+        pouchDBService.query('mlsb/taks-by-board', { key : $scope.currentBoardId })
         .then(function (res) {
             console.log("Query success", res);
             $scope.tasks = new Array();
@@ -50,7 +50,7 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
             if(err.name == "not_found")
             {
                 console.info("Don't worry we try to add our design doc now.")
-                $pouchDB.addDesignDoc().then(function () {
+                pouchDBService.addDesignDoc().then(function () {
                     console.log("design doc added");
                     $scope.getTasks();
                 }).catch(function (err) {
@@ -92,7 +92,7 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
         
     $scope.addNewTask = function()
     {
-        var task = $pouchDB.createEmptyTask();
+        var task = pouchDBService.createEmptyTask();
         task.board_id  =  $scope.currentBoardId;
         task.column_id = parseInt($("#selectColumn").val());
         task.name   = $("#inputTaskName").val();
@@ -106,7 +106,7 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
         }
         
         //$scope.tasks.push(task);
-        $pouchDB.save(task).then($scope.onCreateSuccess, $scope.onError);
+        pouchDBService.save(task).then($scope.onCreateSuccess, $scope.onError);
         
         $scope.msgErrorAddTask = "";
         document.getElementById("formAddTask").reset();
@@ -175,7 +175,7 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
         if(tData == null) console.error("No task found! task ID :" + tID);
         tData.column_id = cID;
 
-        $pouchDB.save(tData).then($scope.onDropSuccess, $scope.onError);
+        pouchDBService.save(tData).then($scope.onDropSuccess, $scope.onError);
     }
     
     $scope.onDropSuccess = function(response)
@@ -203,8 +203,8 @@ app.controller('boardViewCtrl', function($scope, $rootScope, $http, $routeParams
         }
         if(task_id != null && task_rev != null)
         {
-             $pouchDB.delete(task_id, task_rev).then($scope.onSaveSuccess, $scope.onError);
-            //$pouchDB.save($scope.board).then($scope.onSaveSuccess, $scope.onError);
+             pouchDBService.delete(task_id, task_rev).then($scope.onSaveSuccess, $scope.onError);
+            //pouchDBService.save($scope.board).then($scope.onSaveSuccess, $scope.onError);
         }
     }
 

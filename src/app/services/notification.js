@@ -1,8 +1,9 @@
-/**
- * Notification service.
- */
-app.service("notificationService", ["$rootScope", function($rootScope) {
-
+angular
+    .module('myLitleScrumBoardApp')
+    .service("notificationService", notificationService);
+    
+notificationService.$inject = ["$rootScope"];
+function notificationService($rootScope) {
     this.notificationConfig = {
         type: "",
         newest_on_top: true,
@@ -10,28 +11,31 @@ app.service("notificationService", ["$rootScope", function($rootScope) {
         placement: { from: "bottom", align: "center" },
         animate: { enter: 'animated fadeInDown', exit: 'animated fadeOutUp' }
     };
-    
-    this.getIcon = function(type) {
+    this.prevNotification = null;
+
+    this.getIcon = getIcon;
+    this.notify  = notify;
+    this.notifySingle = notifySingle;
+
+    ////////////////////////////////////////////////////////////////////////
+
+    function getIcon(type) {
         var icon = 'glyphicon glyphicon-info-sign';
         if(type == "success") icon = 'glyphicon glyphicon-ok-sign';
         if(type == "danger")  icon = 'glyphicon glyphicon-remove-sign';
         return icon;
     }
 
-    this.notify = function(text, type) {
+    function notify(text, type) {
         this.notificationConfig.type = type;
         $.notify({ icon: this.getIcon(type), message: text }, this.notificationConfig);
     }
 
-    this.prevNotification = null;
-
-    this.notifySingle = function(text, type) {
-        if(this.prevNotification != null)
-        {
+    function notifySingle(text, type) {
+        if(this.prevNotification != null) {
             this.prevNotification.close();
         }
         this.notificationConfig.type = type;
         this.prevNotification = $.notify({ icon: this.getIcon(type), message: text }, this.notificationConfig);
     }
-
-}]);
+}
